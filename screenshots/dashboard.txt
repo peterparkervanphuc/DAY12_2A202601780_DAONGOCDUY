@@ -1,0 +1,10 @@
+﻿NAME                                   IMAGE                               COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+day12_2a202601780_daongocduy-chat-1    day12_2a202601780_daongocduy-chat   "sh -c 'uvicorn app.ΓÇª"   chat      39 seconds ago   Up 37 seconds (healthy)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+day12_2a202601780_daongocduy-redis-1   redis:7-alpine                      "docker-entrypoint.sΓÇª"   redis     31 minutes ago   Up 31 minutes (healthy)   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
+
+
+--- healthz ---
+{"status":"ok","service":"day12-chat-service","version":"1.0.0"}
+
+--- readyz ---
+{"status":"ready","redis":true}

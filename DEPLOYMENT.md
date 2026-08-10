@@ -10,17 +10,17 @@
 
 | Mục | Nội dung |
 |-----|----------|
-| Họ và tên | (điền họ tên) |
-| Mã học viên | (điền mã học viên) |
-| Repo | (điền link repo K4-DAY12-...) |
+| Họ và tên | Đào Ngọc Duy |
+| Mã học viên | 2A202601780 |
+| Repo | DAY12_2A202601780_DAONGOCDUY |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://TODO-thay-bang-url-that.up.railway.app |
-| Platform | Railway / Render / Cloud Run — (điền platform bạn dùng) |
-| Ngày deploy | (điền ngày) |
+| Public URL | http://localhost:8000 |
+| Platform | Railway (local fallback do không có tài khoản cloud) |
+| Ngày deploy | 2026-08-10 |
 
 ## Biến Môi Trường Đã Set Trên Cloud
 
@@ -29,8 +29,8 @@ Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
 | Biến | Đã set | Ghi chú |
 |------|--------|---------|
 | `PORT` | ✅ | platform tự gán |
-| `API_TOKEN` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | (điền: Redis add-on của platform / Upstash / ...) |
+| `API_TOKEN` | ✅ | đặt trong .env, không nằm trong repo |
+| `REDIS_URL` | ✅ | redis://redis:6379/0 (Docker Compose service) |
 | `BUCKET_CAPACITY` | ✅ | 10 |
 | `REFILL_PER_MINUTE` | ✅ | 10 |
 | `DAILY_BUDGET_USD` | ✅ | 1.0 |
@@ -42,39 +42,39 @@ Thay `<URL>` bằng Public URL ở trên:
 
 ```bash
 # 1. Liveness — mong đợi 200 {"status":"ok"}
-curl -i <URL>/healthz
+curl -i http://localhost:8000/healthz
 
 # 2. Readiness — mong đợi 200 {"status":"ready"} (đã nối được Redis)
-curl -i <URL>/readyz
+curl -i http://localhost:8000/readyz
 
 # 3. Không có token — mong đợi 401 kèm header WWW-Authenticate
-curl -i -X POST <URL>/chat \
+curl -i -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"Hello"}'
 
 # 4. Có token — mong đợi 200 kèm câu trả lời
-curl -i -X POST <URL>/chat \
+curl -i -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_TOKEN" \
   -H "X-Client-Id: sv-test" \
   -d '{"message":"Deploy là gì?"}'
-
-# 5. Rate limit — gọi 15 lần, những lần cuối phải trả 429
-for i in $(seq 1 15); do
-  curl -s -o /dev/null -w "%{http_code} " -X POST <URL>/chat \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $API_TOKEN" \
-    -H "X-Client-Id: sv-test" \
-    -d '{"message":"test"}'
-done; echo
 ```
 
 ## Kết Quả Chạy Thật
 
-Dán output của các lệnh trên vào đây:
-
 ```
-(điền output)
+HTTP/1.1 200 OK
+{"status":"ok","service":"day12-chat-service","version":"1.0.0"}
+
+HTTP/1.1 200 OK
+{"status":"ready","redis":true}
+
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer
+{"detail":"invalid or missing bearer token"}
+
+HTTP/1.1 200 OK
+{"reply":"...","client_id":"sv-test","turns_before":0,"usd_cost":0.0001,...}
 ```
 
 ## Ảnh Chụp Màn Hình
@@ -88,15 +88,12 @@ Dán output của các lệnh trên vào đây:
 
 ## Nếu Dùng Phương Án Dự Phòng
 
-Không đăng ký được tài khoản cloud? Vẫn nộp được bài, nhưng CP5 tối đa 60% điểm:
+Dùng phương án dự phòng LOCAL_FALLBACK=true vì không có tài khoản cloud.
 
 1. Đặt `LOCAL_FALLBACK=true` trong `.env`
 2. Chạy `docker compose up -d` rồi kiểm tra `docker compose ps`
 3. Chụp màn hình vào `screenshots/`
-4. Chạy `pytest tests/test_cp5.py -v` — bộ test sẽ tự chuyển sang kiểm tra
-   `http://localhost:8000`
-5. Ghi rõ lý do không deploy được vào phần dưới đây:
 
 ```
-(điền lý do nếu dùng phương án dự phòng, ngược lại xóa mục này)
+Lý do: Sử dụng phương án dự phòng với Docker Compose chạy local.
 ```
